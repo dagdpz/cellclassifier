@@ -15,6 +15,8 @@ function sMetric=spikeWaveMetrics(spikeWave, troughTime, sRate, plotOn);
 
 if length(unique(spikeWave))>10;
     
+    spikeWave = sign(spikeWave(troughTime))*(-1)*spikeWave;
+    
     % --- EXTREMUM AMPLITUDE ---
     
     temps=spikeWave(troughTime-3:troughTime+3);
