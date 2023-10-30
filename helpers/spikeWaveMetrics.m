@@ -22,17 +22,13 @@ if length(unique(spikeWave))>10;
     apo2=find(tt2==min(tt2))-301;
     shiftTrough=apo2/100;
     
-    sMetric.extremAmp=abs(findpeaks(tt2)); % the extremum amplitude is the magnitude of spike at the time of the EAP trough
+    sMetric.extremAmp=abs(min(tt2)); % the extremum amplitude is the magnitude of spike at the time of the EAP trough
     
     
     % --- HALF WIDTH ---
-    halfAmplitude=sMetric.extremAmp/2; % calculate the half  value of the extremum amplitude
-    firstCrossing = ...
-        find(abs(spikeWave(1:troughTime-1)) < halfAmplitude & ...
-        abs(spikeWave(2:troughTime))>halfAmplitude,1,'last'); % find the timepoint when the spike reaches half-amplitude
-    secondCrossing = ...
-        find(abs(spikeWave(troughTime:end-1)) > halfAmplitude & ...
-        abs(spikeWave(troughTime+1:end))<halfAmplitude,1)+troughTime-1; %find the timepoint when teh spike returns to half-amplitude
+    halfAmplitude=-sMetric.extremAmp/2; % calculate the half  value of the extremum amplitude
+    firstCrossing=find(spikeWave(1:troughTime-1)>halfAmplitude & spikeWave(2:troughTime)<halfAmplitude,1,'last'); % find the timepoint when the spike reaches half-amplitude
+    secondCrossing=find(spikeWave(troughTime:end-1)<halfAmplitude & spikeWave(troughTime+1:end)>halfAmplitude,1)+troughTime-1; %find the timepoint when teh spike returns to half-amplitude
     zeroTime1=interp1(spikeWave([firstCrossing, firstCrossing+1]),[0 1],halfAmplitude);
     zeroTime2=interp1(spikeWave([secondCrossing, secondCrossing+1]),[0 1],halfAmplitude);
     halfStart=zeroTime1+firstCrossing;
