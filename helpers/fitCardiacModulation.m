@@ -9,7 +9,9 @@ for k=1:size(phaseMetricMatrix,1);
         probMetric=(Arlowess-min(Arlowess)); % subtract minimum and divide by sum to create a "probability distribution" which will be used to detect mean phase for circular-linear fit
         probMetric=probMetric./nansum(probMetric);
         killnan=find(~isnan(scaledMetric));
-        meanPhase=circ_mean(radBins(killnan),probMetric(killnan),2); % determine the pahse with the highest value for that metric
+        %meanPhase=circ_mean(radBins(killnan),probMetric(killnan),2); % determine the pahse with the highest value for that metric
+        [~,phase_idx]=max(mean(probMetric(killnan),1));
+        meanPhase=radBins(killnan(phase_idx));
         if meanPhase<0; % if the phase is negative
             meanPhase=2*pi+meanPhase; % wrap around and put the phase in 0-2pi terms
         end
