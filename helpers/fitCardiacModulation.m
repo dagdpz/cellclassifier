@@ -1,8 +1,8 @@
-
 function [modIndex,removeNoise,allCorr,allLinMod]=fitCardiacModulation(radBins, phaseMetricMatrix, metricNames, plotOn,plotpos);
 for k=1:size(phaseMetricMatrix,1);
     if (length(find(isnan(phaseMetricMatrix(k,:))))/length(phaseMetricMatrix(k,:)))<0.8
-        Arlowess = smooth(phaseMetricMatrix(k,:),'rlowess',1)';
+%         Arlowess = smooth(phaseMetricMatrix(k,:),'rlowess',1)';
+        Arlowess = DAG_circ_smooth(phaseMetricMatrix(k,:))';
         removeNoise(k,:)=Arlowess;
         scaledMetricPre=phaseMetricMatrix(k,:)./nanmean(Arlowess); % scale the metric to the mean value, so we can calculate percent changes
         scaledMetric=Arlowess./nanmean(Arlowess); % scale the metric to the mean value, so we can calculate percent changes
@@ -22,13 +22,15 @@ for k=1:size(phaseMetricMatrix,1);
             mdl=fitlm(cos(radBins(killnan)-meanPhase),scaledMetric(killnan)); % fit a circular-linear model to the modulated data, radbins is the phase for each bin of data
             modIndex(k,1)=mdl.Coefficients{2,1}; % record the modulation index, the slope of the cosine function
             modIndex(k,2)=mdl.Coefficients{2,4}; % record teh p-value of the modulation index
-            modIndex(k,3)=meanPhase; % the phase of modulation
+            modIndex(k,3)=meanPhase;             % the phase of modulation
             modIndex(k,4)=mdl.Rsquared.ordinary; % record teh p-value of the modulation index
+            modIndex(k,5)=mdl.Coefficients{1,1};
         else
             modIndex(k,1)=0; % record the modulation index, the slope of the cosine function
             modIndex(k,2)=0; % record teh p-value of the modulation index
             modIndex(k,3)=nan; % the phase of modulation
             modIndex(k,4)=0;
+            modIndex(k,5)=0;
         end
         
         allScale(k,:)=scaledMetric;
@@ -42,7 +44,7 @@ for k=1:size(phaseMetricMatrix,1);
             %   plot([meanPhase, meanPhase],[0 2],'--r');
             title({metricNames{k};['MI=',num2str(modIndex(k,1)),', (p=',num2str(modIndex(k,2)),',R2=',num2str(modIndex(k,4)),')']});
             xlabel('cardiac phase (rad)');
-            ylabel('% change');
+            ylabel('change');
             axis tight;
         end
         
@@ -52,6 +54,7 @@ for k=1:size(phaseMetricMatrix,1);
         modIndex(k,2)=nan; % record teh p-value of the modulation index
         modIndex(k,3)=nan; % the phase of modulation
         modIndex(k,4)=nan;
+        modIndex(k,5)=nan;
     end
 end
 
